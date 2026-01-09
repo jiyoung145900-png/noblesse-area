@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>노블레스 - 당신의 운명을 불러옵니다</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+    :root {
+        /* 노블레스 스타일 위치 조절 (이미지 구도에 맞춤) */
+        --message-left: 50%;
+        --message-top: 360px;
+        --point-color: #D4AF37; /* 노블레스 골드 */
+        --text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    body {
+        margin: 0;
+        background: #0a0a0a;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        height: 100vh;
+        font-family: 'Pretendard', sans-serif;
+        overflow: hidden;
+    }
+
+    /* 노블레스 메인 캔버스 */
+    #content {
+        width: 1024px; /* 인스타그램 정방향 스타일 대응 */
+        height: 1024px;
+        background: url('f052c5.jpg') center/cover no-repeat;
+        position: relative;
+        color: var(--point-color);
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    /* 시간 표시 (우측 상단 럭셔리 배치) */
+    #time {
+        position: absolute;
+        top: 40px;
+        right: 40px;
+        font-size: 40px;
+        font-weight: 300;
+        letter-spacing: 2px;
+        color: rgba(212, 175, 55, 0.6);
+    }
+
+    /* 노블레스 문구 블록 */
+    #message {
+        position: absolute;
+        left: var(--message-left);
+        top: var(--message-top);
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .line-top { 
+        font-size: 32px; 
+        font-weight: 400; 
+        color: #ffffff;
+        letter-spacing: 5px;
+        text-shadow: var(--text-shadow);
+    }
+
+    #region {
+        font-size: 56px;
+        font-weight: 800;
+        color: var(--point-color);
+        text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        margin: 5px 0;
+    }
+
+    .line-bottom { 
+        font-size: 28px; 
+        font-weight: 400; 
+        color: #e0e0e0;
+        letter-spacing: 2px;
+        text-shadow: var(--text-shadow);
+    }
+
+    /* 우측 컨트롤러 레이어 */
+    #control-panel {
+        width: 450px;
+        height: 100vh;
+        background: #151515;
+        padding: 40px 30px;
+        box-sizing: border-box;
+        border-left: 1px solid var(--point-color);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+    }
+
+    h3 { color: var(--point-color); margin: 0; font-size: 24px; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 15px; }
+    .label { color: #888; font-size: 14px; margin-bottom: -12px; margin-top: 10px; }
+
+    select {
+        width: 100%;
+        padding: 15px;
+        font-size: 17px;
+        background: #000;
+        color: var(--point-color);
+        border: 1px solid #333;
+        border-radius: 4px;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+    select:focus { border-color: var(--point-color); }
+
+    #status {
+        margin-top: auto;
+        padding: 20px;
+        border-radius: 4px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 16px;
+        opacity: 0;
+        transition: all 0.5s;
+        border: 1px solid var(--point-color);
+        color: var(--point-color);
+    }
+    .success { opacity: 1 !important; background: rgba(212, 175, 55, 0.1); }
+</style>
+</head>
+<body>
+
+<div id="content">
+    <div id="time"></div>
+    <div id="message">
+        <div class="line-top">가까운 곳에서 당신의 운명이</div>
+        <div id="region">지역을 선택하세요</div>
+        <div class="line-bottom">지금, 소중한 인연을 불러옵니다</div>
+    </div>
+</div>
+
+<div id="control-panel">
+    <h3>👑 NOBLESSE MGMT</h3>
+    
+    <div class="label">KOREAN SELECTION</div>
+    <select id="sido-ko"></select>
+    <select id="sigungu-ko"></select>
+
+    <div style="margin: 20px 0;"></div>
+
+    <div class="label">CHINESE SELECTION (연동)</div>
+    <select id="sido-cn"></select>
+    <select id="sigungu-cn"></select>
+
+    <div id="status">IMAGE COPIED SUCCESSFULLY</div>
+</div>
+
+<script>
+// 전국 17개 시도 풀 데이터 (사장님 요청대로 빠짐없이 복구)
+const regionData = {
+    "서울특별시": { cn: "首尔", sigungu: { "강남구": "江南区", "강동구": "江东区", "강북구": "江北区", "강서구": "江西区", "관악구": "冠岳区", "광진구": "广津区", "구로구": "九老区", "금천구": "衿川区", "노원구": "芦原区", "도봉구": "道峰区", "동대문구": "东大门区", "동작구": "铜雀区", "마포구": "麻浦区", "서대문구": "西大门区", "서초구": "瑞草区", "성동구": "城东区", "성북구": "城北区", "송파구": "松坡区", "양천구": "阳川区", "영등포구": "永登浦区", "용산구": "龙山区", "은평구": "恩平区", "종로구": "钟路区", "중구": "中区", "중랑구": "中浪区" } },
+    "부산광역시": { cn: "釜山", sigungu: { "강서구": "江西区", "금정구": "金井区", "기장군": "机张郡", "남구": "南区", "동구": "东区", "동래구": "东莱区", "부산진구": "釜山镇区", "북구": "北区", "사상구": "沙上区", "사하구": "沙下区", "서구": "西区", "수영구": "水营区", "연제구": "莲堤区", "영도구": "影岛区", "중구": "中区", "해운대구": "海云台区" } },
+    "경기도": { cn: "京畿道", sigungu: { "수원시": "水原市", "성남시": "城南市", "의정부시": "议政府市", "안양시": "安养市", "부천시": "富川市", "광명시": "光明市", "평택시": "平泽市", "동두천시": "东두川市", "안산시": "安山市", "고양시": "高阳市", "과천시": "果川市", "구리시": "九里市", "남양주시": "南杨州市", "오산시": "乌山市", "시흥시": "始兴市", "군포시": "军浦市", "의왕시": "义王市", "하남시": "河南市", "용인시": "龙仁市", "파주시": "坡州市", "이천시": "利川市", "안성시": "安城市", "김포시": "金浦市", "화성시": "华城市", "광주시": "广州市", "양주시": "杨州市", "포천시": "抱川市", "여주시": "骊州市", "연천군": "涟川郡", "가평군": "加平郡", "양평군": "杨平郡" } },
+    "인천광역시": { cn: "仁川", sigungu: { "강화군": "江华郡", "계양구": "桂阳区", "남동구": "南洞区", "동구": "东区", "미추홀구": "弥邹忽区", "부평구": "富平区", "서구": "西区", "연수구": "延寿区", "옹진군": "瓮津郡", "중구": "中区" } },
+    "대구광역시": { cn: "大邱", sigungu: { "남구": "南区", "달서구": "达西区", "달성군": "达城郡", "동구": "东区", "북구": "北区", "서구": "西区", "수성구": "寿城区", "중구": "中区", "군위군": "军威郡" } },
+    "광주광역시": { cn: "光州", sigungu: { "광산구": "光山区", "남구": "南区", "동구": "东区", "북구": "北区", "서구": "西区" } },
+    "대전광역시": { cn: "大田", sigungu: { "대덕구": "大德区", "동구": "东区", "서구": "西区", "유성구": "儒城区", "중구": "中구" } },
+    "울산광역시": { cn: "蔚山", sigungu: { "남구": "南区", "동구": "东区", "북구": "北区", "울주군": "蔚州郡", "중구": "中区" } },
+    "강원특별자치도": { cn: "江原道", sigungu: { "춘천시": "春川市", "강릉시": "江陵市", "원주시": "原州市", "동해시": "东海市", "태백시": "太白市", "속초시": "束草市", "삼척시": "三陟市", "홍천군": "洪川郡", "횡성군": "横城郡", "영월군": "宁越郡", "평창군": "平昌郡", "정선군": "旌善郡", "철원군": "铁原郡", "화천군": "华川郡", "양구군": "杨口郡", "인제군": "麟蹄郡", "고성군": "高城郡", "양양군": "襄阳郡" } },
+    "충청북도": { cn: "忠清北道", sigungu: { "청주시": "清州市", "충주시": "忠州市", "제천시": "堤川市", "보은군": "报恩郡", "옥천군": "沃川郡", "영동군": "永同郡", "증평군": "曾坪郡", "진천군": "镇川郡", "괴산군": "槐山郡", "음성군": "阴城郡", "단양군": "丹阳郡" } },
+    "충청남도": { cn: "忠清南道", sigungu: { "천안시": "天安市", "공주시": "公州市", "보령시": "保宁市", "아산시": "牙山市", "서산시": "瑞山市", "논산시": "论山市", "계룡시": "鸡龙市", "당진시": "唐津市", "금산군": "锦山郡", "부여군": "扶余郡", "서천군": "舒川郡", "청양군": "青阳郡", "홍성군": "洪城郡", "예산군": "礼山郡", "태안군": "泰安郡" } },
+    "전북특별자치도": { cn: "全罗北道", sigungu: { "전주시": "全州市", "군산시": "群山市", "익산시": "益山市", "정읍시": "井邑市", "남원시": "南原市", "김제시": "金堤市", "완주군": "完州郡", "진안군": "镇安郡", "무주군": "茂朱郡", "장수군": "长수郡", "임실군": "任实郡", "순창군": "淳昌郡", "고창군": "高敞郡", "부안군": "扶安郡" } },
+    "전남특별자치도": { cn: "全罗南道", sigungu: { "목포시": "木浦市", "여수시": "丽水市", "순천시": "顺天市", "나주시": "罗州市", "광양시": "光阳市", "담양군": "潭양郡", "곡성군": "谷城郡", "구례군": "求礼郡", "보성군": "宝城郡", "화순군": "和顺郡", "장흥군": "长兴郡", "강진군": "康津郡", "해남군": "海南郡", "영암군": "灵岩郡", "무안군": "务安郡", "함평군": "咸平郡", "영광군": "灵光郡", "장성군": "长城郡", "완도군": "莞岛郡", "진도군": "珍岛郡", "신안군": "新安郡" } },
+    "경상북도": { cn: "庆尚北道", sigungu: { "포항시": "浦项市", "경주시": "庆州市", "김천시": "金泉市", "안동시": "安东市", "구미시": "龟尾市", "영주시": "荣州市", "영천시": "永川市", "상주시": "尚州市", "문경시": "闻庆市", "경산시": "庆山市", "의성군": "义城郡", "청송군": "青松郡", "영양군": "英阳郡", "영덕군": "盈德郡", "청도군": "清道郡", "고령군": "高灵郡", "성주군": "星州郡", "칠곡군": "漆谷郡", "예천군": "醴泉郡", "봉화군": "奉化郡", "울진군": "蔚珍郡", "울릉군": "郁陵郡" } },
+    "경상남도": { cn: "庆尚南道", sigungu: { "창원시": "昌原市", "진주시": "晋州市", "통영시": "统盈市", "사천시": "泗川市", "김해시": "金海市", "밀양시": "密阳市", "거제시": "巨济市", "양산시": "梁山市", "의령군": "宜宁郡", "함안군": "咸安郡", "창녕군": "昌宁郡", "고성군": "固城郡", "남해군": "南海郡", "하동군": "河东郡", "산청군": "山清郡", "함양군": "咸阳郡", "거창군": "居昌郡", "합천군": "陕川郡" } },
+    "제주특별자치도": { cn: "济州道", sigungu: { "제주시": "济州市", "서귀포시": "西归浦市" } },
+    "세종특별자치시": { cn: "世宗", sigungu: { "세종시": "世宗市" } }
+};
+
+const sidoKo = document.getElementById('sido-ko');
+const sigunguKo = document.getElementById('sigungu-ko');
+const sidoCn = document.getElementById('sido-cn');
+const sigunguCn = document.getElementById('sigungu-cn');
+const regionDisplay = document.getElementById('region');
+const statusMsg = document.getElementById('status');
+
+function init() {
+    sidoKo.innerHTML = `<option value="">Region Select</option>`;
+    sidoCn.innerHTML = `<option value="">选择 地区</option>`;
+    Object.keys(regionData).forEach(ko => {
+        sidoKo.innerHTML += `<option value="${ko}">${ko}</option>`;
+        sidoCn.innerHTML += `<option value="${ko}">${regionData[ko].cn}</option>`;
+    });
+}
+
+function updateSigunguList(val) {
+    sigunguKo.innerHTML = `<option value="">City Select</option>`;
+    sigunguCn.innerHTML = `<option value="">选择 市郡区</option>`;
+    if (val && regionData[val]) {
+        const list = regionData[val].sigungu;
+        Object.keys(list).forEach(ko => {
+            sigunguKo.innerHTML += `<option value="${ko}">${ko}</option>`;
+            sigunguCn.innerHTML += `<option value="${ko}">${list[ko]}</option>`;
+        });
+    }
+}
+
+sidoKo.onchange = (e) => {
+    const val = e.target.value;
+    sidoCn.value = val;
+    updateSigunguList(val);
+    regionDisplay.textContent = val || "지역을 선택하세요";
+};
+
+sidoCn.onchange = (e) => {
+    const val = e.target.value;
+    sidoKo.value = val;
+    updateSigunguList(val);
+    regionDisplay.textContent = val || "지역을 선택하세요";
+};
+
+sigunguKo.onchange = async (e) => {
+    const val = e.target.value;
+    sigunguCn.value = val;
+    if (val) {
+        regionDisplay.textContent = `${sidoKo.value} ${val}`;
+        await copyToClipboard();
+    }
+};
+
+sigunguCn.onchange = async (e) => {
+    const val = e.target.value;
+    sigunguKo.value = val;
+    if (val) {
+        regionDisplay.textContent = `${sidoKo.value} ${val}`;
+        await copyToClipboard();
+    }
+};
+
+setInterval(() => {
+    const d = new Date();
+    document.getElementById('time').textContent = 
+        `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+}, 1000);
+
+async function copyToClipboard() {
+    const content = document.getElementById('content');
+    try {
+        const canvas = await html2canvas(content, { scale: 1, useCORS: true });
+        canvas.toBlob(async (blob) => {
+            const item = new ClipboardItem({ "image/png": blob });
+            await navigator.clipboard.write([item]);
+            statusMsg.classList.add('success');
+            setTimeout(() => statusMsg.classList.remove('success'), 2000);
+        });
+    } catch (err) { console.error(err); }
+}
+
+init();
+</script>
+</body>
+</html>
