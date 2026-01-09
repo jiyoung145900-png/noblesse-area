@@ -7,10 +7,12 @@
 <style>
     :root {
     --message-left: 50%;
-    --message-top: 380px; /* 모델 사이 로고 위치에 맞춤 */
-    --point-color: #D4AF37;
-    --text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.9);
-    }
+    --message-top: 380px; 
+    --region-offset-y: 6px;
+    /* 더 진하고 선명한 노블레스 골드 컬러로 변경 */
+    --point-color: #FFD700; 
+    --deep-gold: #C5A028; /* 외곽선이나 그림자용 진한 금색 */
+}
 
     body {
         margin: 0;
@@ -35,16 +37,17 @@
     }
 
     /* 시간 표시 (우측 상단 럭셔리 배치) */
-    #time {
-        position: absolute;
-    left: var(--message-left);
-    top: var(--message-top);
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px; /* 문장 사이 간격 최적화 */
-    width: 100%;
+   #time {
+    position: absolute;
+    top: 40px;
+    right: 50px;
+    /* 크기를 80px로 키워 가시성 확보 */
+    font-size: 80px; 
+    font-weight: 900;
+    color: var(--point-color);
+    /* 금색 광채와 검정 그림자로 입체감 부여 */
+    text-shadow: 2px 2px 4px #000, 0 0 15px rgba(255, 215, 0, 0.7);
+    letter-spacing: -2px; /* 숫자가 너무 퍼지지 않게 조절 */
 }
 
     /* 노블레스 문구 블록 */
@@ -69,10 +72,10 @@
 }
     
     #region {
-    font-size: 52px; /* 지역명을 가장 크게 강조 */
+    font-size: 52px;
     font-weight: 900;
-    color: #ffffff; /* 지역은 흰색으로 빡! */
-    text-shadow: 0 0 15px var(--point-color); /* 금색 광채 효과 */
+    color: #ffffff;
+    text-shadow: 0 0 20px var(--point-color), 2px 2px 5px #000;
     margin-bottom: 5px;
 }
     
